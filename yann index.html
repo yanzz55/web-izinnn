@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEB IZIN X TJKT2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+            background: linear-gradient(to bottom, #000000, #007bff); /* Gradasi dari hitam ke biruan */
+            overflow: hidden; /* Sembunyikan scrollbar */
+            position: relative; /* Untuk posisi konten */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9); /* Latar belakang putih dengan transparansi */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            transition: transform 0.3s;
+            animation: slideIn 0.5s ease-out; /* Animasi slide in */
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .container:hover {
+            transform: scale(1.05);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #FF0000;
+            animation: fadeInText 0.5s ease-in; /* Animasi muncul untuk judul */
+        }
+        @keyframes fadeInText {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            animation: fadeInText 0.5s ease-in; /* Animasi muncul untuk tombol */
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px) scale(1.05); /* Tambahkan efek zoom saat hover */
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .pesan {
+            background: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            display: none; /* Sembunyikan pesan izin sampai dibuat */
+            animation: fadeInText 0.5s ease-in; /* Animasi muncul untuk pesan */
+        }
+        .logo {
+            width: 200px; /* Ukuran logo lebih kecil */
+            margin-bottom: 30px;
+            animation: zoomIn 1s ease-in; /* Animasi zoom untuk logo */
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        /* Gaya untuk peringatan */
+        .alert {
+            display: none; /* Sembunyikan peringatan secara default */
+            background-color: #f8d7da; /* Warna latar belakang merah muda */
+            color: #721c24; /* Warna teks merah gelap */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb; /* Border merah muda */
+            border-radius: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+    <img src="https://files.catbox.moe/ofgq34.jpg" class="logo"> <!-- Ganti URL dengan logo Anda -->
+    <h1>ISI DATA DIBAWAH KAWAN</h1>
+    <input type="text" id="nama" placeholder="Nama lengkap" required>
+    <input type="text" id="alasan" placeholder="Alasan tidak hadir" required>
+    <input type="number" id="hariAbsen" placeholder="no absen" required>
+    <div class="alert" id="alertMessage">
+        <i class="fas fa-exclamation-triangle"></i> Semua kolom harus diisi!!
+    </div>
+    <button onclick="buatPesanIzin()">lanjutkan</button>
+    <button id="kirimPesan" style="display:none;" onclick="kirimPesan()">Kirim Pesan izin ke Grup Kelas</button>
+    <p id="pesanIzin"></p>
+</div>
+
+<div class="container" id="resultContainer" style="display:none;">
+    <h1>! wajib mengirim pesan ke group kelas, jika tidak maka anda di anggap alfa !</h1>
+    <h2>silahkan dikirim ke group kelas</h2>
+    <p id="pesanIzinResult"></p>
+    <button onclick="kirimPesan()">Kirim ke Grup Kelas</button>
+    <button onclick="editPesan()">Edit pesan Izin</button>
+</div>
+
+<script>
+    let pesanIzin = '';
+
+    function buatPesanIzin() {
+        const nama = document.getElementById("nama").value;
+        const alasan = document.getElementById("alasan").value;
+        const hariAbsen = document.getElementById("hariAbsen").value;
+        const alertMessage = document.getElementById("alertMessage");
+
+        // Reset peringatan
+        alertMessage.style.display = 'none';
+
+        if (nama && alasan && hariAbsen) {
+            pesanIzin = `Kepada bapak/ibu guru yang mengajar di kelas *X TJKT2*
+            \nNama: ${nama}\nAbsen: ${hariAbsen}\n
+Saya tidak bisa mengikuti pembelajaran hari ini di karenakan ${alasan}\n Terima kasih.`;
+            document.getElementById("pesanIzinResult").innerText = pesanIzin;
+            document.getElementById("mainContainer").style.display = 'none'; // Sembunyikan konten utama
+            document.getElementById("resultContainer").style.display = 'block'; // Tampilkan konten hasil
+        } else {
+            alertMessage.style.display = 'block'; // Tampilkan peringatan
+        }
+    }
+
+    function kirimPesan() {
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(pesanIzin)}`; // Ganti dengan nomor grup kelas
+        window.open(url, '_blank'); // Buka WhatsApp dengan pesan
+    }
+
+    function editPesan() {
+        document.getElementById("mainContainer").style.display = 'block'; // Tampilkan konten utama
+        document.getElementById("resultContainer").style.display = 'none'; // Sembunyikan konten hasil
+        document.getElementById("nama").value = ''; // Kosongkan input
+        document.getElementById("alasan").value = ''; // Kosongkan input
+        document.getElementById("hariAbsen").value = ''; // Kosongkan input
+        document.getElementById("alertMessage").style.display = 'none'; // Sembunyikan peringatan
+    }
+</script>
+
+</body>
+</html>
